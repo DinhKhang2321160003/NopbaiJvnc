@@ -34,7 +34,7 @@ public class SaveServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
+        try (PrintWriter out = response.getWriter()) { 
             //b1. Lấy giá trị tham số từ client
             String uname = request.getParameter("uname");
             String upass = request.getParameter("upass");
