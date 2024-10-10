@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ADMIN
  */
-public class ViewServlet extends HttpServlet {
+public class EditServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,41 +34,62 @@ public class ViewServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+            String id = request.getParameter("id");
+
             Connection conn = null;
             PreparedStatement ps = null;
             ResultSet rs = null;
             String kq = "";
             try {
                 conn=Database.getConnection();
-                ps = conn.prepareStatement("select * from users");
-
+                ps = conn.prepareStatement("select * from users where id=" + id);
                 rs = ps.executeQuery();
-
-                kq += "<table border=1>";
-                kq += "<tr>";
-                kq += "<td>Id</td><td>Name</td><td>Password</td><td>Email</td><td>Country</td><td>Edit</td><td>Delete</td>";
-                kq += "<tr>";
-                while (rs.next()) {
-                    kq += "<tr>";
-              kq += "<td>" + rs.getInt("id") + "</td><td>"
-              + rs.getString("name") + "</td><td>" + rs.getString(3) + "</td><td>"
-              + rs.getString(4) + "</td><td>" + rs.getString(5) + "</td><td>"
-              + "<a href=EditServlet?id=" + rs.getInt(1) + ">Edit</a>"
-              + "</td><td><a href=DeleteServlet?id=" + rs.getInt(1) + " onclick=\"return confirm('Bạn có chắc chắn xoá không?')\">Delete</a></td>";
-               kq += "</tr>";
+                if (rs.next()) {
+                    out.println("<!DOCTYPE html>");
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>Servlet EditServlet</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>Update User</h1>");
+                    out.println("<form action='UpdateServlet' method='POST'>\n"
+                            + "<input type='hidden' name='id' value=" + id + ">"
+                            + " <table border='0'> \n"
+                            + " <tr>\n"
+                            + " <td>Name</td>\n"
+                            + " <td><input type='text' name='uname' value='" + rs.getString(2) + "' /></td>\n"
+                            + " </tr>\n"
+                            + " <tr>\n"
+                            + " <td>Password</td>\n"
+                            + " <td><input type='password' name='upass' value='" + rs.getString(3) + "'/></td>\n"
+                            + " </tr>\n"
+                            + " <tr>\n"
+                            + " <td>Email</td>\n"
+                            + " <td><input type='email' name='email' value='" + rs.getString(4) + "' /></td>\n"
+                            + " </tr>\n"
+                            + " <tr>\n"
+                            + " <td>Country</td>\n"
+                            + " <td>\n"
+                            + " <select name=\"country\">\n"
+                            + " <option value='Vietnam'>Vietnam</option>\n"
+                            + " <option value='USA'>USA</option>\n"
+                            + " <option value='UK'>UK</option>\n"
+                            + " <option value='Other'>Other</option>\n"
+                            + " </select>\n"
+                            + " </td>\n"
+                            + " </tr>\n"
+                            + " <tr>\n"
+                            + " <td colspan=2><input type='submit' value='Edit & Save' /></td>\n"
+                            + " </tr>\n"
+                            + " </table>\n"
+                            + " </form>");
+                    out.println("</body>");
+                    out.println("</html>");
                 }
-                kq += "</table>";
                 conn.close();
             } catch (Exception e) {
-                System.out.println("Loi: " + e.toString());
+                System.out.println("Loi:" + e.toString());
             }
-            out.println("<html>");
-            out.println("<body>");
-            out.println("<a href='index.html'>Add New User</a>");
-            out.println("<h1>Users List</h1>");
-            out.println(kq);
-            out.println("</body>");
-            out.println("</html>");
         }
     }
 

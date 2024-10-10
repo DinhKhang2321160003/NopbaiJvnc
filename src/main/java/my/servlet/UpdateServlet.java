@@ -2,12 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package my.servlet;
 
+import common.Database;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ADMIN
  */
-public class ViewServlet extends HttpServlet {
+public class UpdateServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,51 +32,38 @@ public class ViewServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
+            String id = request.getParameter("id");
+            String uname = request.getParameter("uname");
+            String upass = request.getParameter("upass");
+            String email = request.getParameter("email");
+            String country = request.getParameter("country");
+
             Connection conn = null;
             PreparedStatement ps = null;
-
             try {
-                //1. nạp driver
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                //System.out.println("Nap Driver ok");
-                //2. thiết lập kết nối
-                conn = DriverManager.getConnection("jdbc:sqlserver://PC317;databaseName=demodb", "sa", "sa");
-                //System.out.println("Ket noi ok");
-                //3.
-                ps = conn.prepareStatement("insert into users(name, password, email, country) values (?,?,?,?)");
+                conn = Database.getConnection();
+                ps = conn.prepareStatement("update users set name=?, password=?,email=?, country=? where id=?");
                 ps.setString(1, uname);
                 ps.setString(2, upass);
-                ps.setString(3, uemail);
+                ps.setString(3, email);
                 ps.setString(4, country);
-              
-                //4. thi han truy vấn
+                ps.setInt(5, Integer.parseInt(id));
+
                 int kq = ps.executeUpdate();
-                //5. Xử lý kết quả trả về
+
                 if (kq > 0) {
-                    out.print("<h2>Thêm User thành công</h2>");
+                    out.println("<h2>Cập nhật user thành công</h2>");
                 } else {
-                    out.print("<h2>Thêm thất bại</h2>");
+                    out.println("<h2>Cập nhật user thất bại</h2>");
                 }
-                //6. đóng kết nối
                 conn.close();
-
             } catch (Exception e) {
-
                 System.out.println("Loi:" + e.toString());
-                out.print("<h2>Thêm thất bại</h2>");
+                out.println("<h2>Cập nhật user thất bại</h2>");
             }
-            //chèn nội dung của trang index.html vào phản hồi kết quả
-            request.getRequestDispatcher("index.html").include(request, response);
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ViewServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ViewServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+
+            request.getRequestDispatcher("ViewServlet").include(request, response);
+
         }
     }
 

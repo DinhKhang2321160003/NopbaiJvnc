@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ADMIN
  */
-public class ViewServlet extends HttpServlet {
+public class DeleteServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,41 +34,24 @@ public class ViewServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+            String id = request.getParameter("id");
             Connection conn = null;
             PreparedStatement ps = null;
-            ResultSet rs = null;
-            String kq = "";
             try {
                 conn=Database.getConnection();
-                ps = conn.prepareStatement("select * from users");
-
-                rs = ps.executeQuery();
-
-                kq += "<table border=1>";
-                kq += "<tr>";
-                kq += "<td>Id</td><td>Name</td><td>Password</td><td>Email</td><td>Country</td><td>Edit</td><td>Delete</td>";
-                kq += "<tr>";
-                while (rs.next()) {
-                    kq += "<tr>";
-              kq += "<td>" + rs.getInt("id") + "</td><td>"
-              + rs.getString("name") + "</td><td>" + rs.getString(3) + "</td><td>"
-              + rs.getString(4) + "</td><td>" + rs.getString(5) + "</td><td>"
-              + "<a href=EditServlet?id=" + rs.getInt(1) + ">Edit</a>"
-              + "</td><td><a href=DeleteServlet?id=" + rs.getInt(1) + " onclick=\"return confirm('Bạn có chắc chắn xoá không?')\">Delete</a></td>";
-               kq += "</tr>";
+                ps = conn.prepareStatement("delete from users where id=" + id);
+                int kq = ps.executeUpdate();
+                if (kq > 0) {
+                    out.println("<h2>Xoá user thành công</h2>");
+                } else {
+                    out.println("<h2>Xoá user thất bại</h2>");
                 }
-                kq += "</table>";
                 conn.close();
             } catch (Exception e) {
                 System.out.println("Loi: " + e.toString());
+                out.println("<h2>Xoá user thất bại</h2>");
             }
-            out.println("<html>");
-            out.println("<body>");
-            out.println("<a href='index.html'>Add New User</a>");
-            out.println("<h1>Users List</h1>");
-            out.println(kq);
-            out.println("</body>");
-            out.println("</html>");
+            request.getRequestDispatcher("ViewServlet").include(request, response);
         }
     }
 
